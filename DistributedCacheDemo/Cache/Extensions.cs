@@ -43,6 +43,17 @@ namespace DistributedCacheDemo.Cache
             await RemoveHashesAndTagMap(distributedCache, tag, token);
         }
 
+        public async static Task RemoveAsync(this IDistributedCache distributedCache, params Cache.Tag.Name[] tags)
+        {
+            if(tags != null && tags.Any())
+            {
+                foreach(var tag in tags)
+                {
+                    await RemoveHashesAndTagMap(distributedCache, tag);
+                }
+            }            
+        }
+
         public async static Task RemoveAsync(this IDistributedCache distributedCache, Cache.Tag.Name tag, object parameters, CancellationToken token = default)
         {
             string cacheKey = GetCacheKey(tag, parameters);

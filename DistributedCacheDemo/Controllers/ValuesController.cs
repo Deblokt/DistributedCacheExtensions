@@ -50,7 +50,7 @@ namespace DistributedCacheDemo.Controllers
             await _cache.RemoveAsync(Cache.Tag.Name.Values, new { id });
 
             // OR remove all values objects from cache
-            await _cache.RemoveAsync(Cache.Tag.Name.Values);
+            await _cache.RemoveAsync(Cache.Tag.Name.Values, Cache.Tag.Name.Cars, Cache.Tag.Name.Users);
         }
 
         // DELETE api/values/5
