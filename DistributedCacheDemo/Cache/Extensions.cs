@@ -104,6 +104,10 @@ namespace DistributedCacheDemo.Cache
         {
             string masterKey = string.Format("{0}{1}", "master", tag.ToString());
             var hashes = (await distributedCache.GetAsync(masterKey, token)).FromByteArray<List<string>>();
+            if (hashes == null)
+            {
+                hashes = new List<string>();
+            }
             if (!hashes.Contains(cacheKey))
             {
                 hashes.Add(cacheKey);
@@ -115,6 +119,10 @@ namespace DistributedCacheDemo.Cache
         {
             string masterKey = string.Format("{0}{1}", "master", tag.ToString());
             var hashes = (await distributedCache.GetAsync(masterKey, token)).FromByteArray<List<string>>();
+            if (hashes == null)
+            {
+                hashes = new List<string>();
+            }
             if (hashes.Contains(cacheKey))
             {
                 hashes.Remove(cacheKey);
@@ -126,6 +134,10 @@ namespace DistributedCacheDemo.Cache
         {
             string masterKey = string.Format("{0}{1}", "master", tag.ToString());
             var hashes = (await distributedCache.GetAsync(masterKey, token)).FromByteArray<List<string>>();
+            if (hashes == null)
+            {
+                hashes = new List<string>();
+            }
             foreach (var hash in hashes)
             {
                 await distributedCache.RemoveAsync(hash, token);
@@ -134,4 +146,4 @@ namespace DistributedCacheDemo.Cache
         }
         #endregion
     }
-}  
+}
