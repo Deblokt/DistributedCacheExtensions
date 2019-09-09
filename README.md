@@ -1,0 +1,2 @@
+# DistributedCacheExtensions
+Useful extensions for IDistributedCache
