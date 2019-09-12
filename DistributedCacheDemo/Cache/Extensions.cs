@@ -13,37 +13,37 @@ namespace DistributedCacheDemo.Cache
 {
     public static class Extensions
     {
-        public async static Task<T> FromAsync<T>(this IDistributedCache distributedCache, Cache.Tag.Name tag, object parameters, Func<T> value, DistributedCacheEntryOptions options, CancellationToken token = default) where T : class
+        public async static Task<T> FromAsync<T>(this IDistributedCache distributedCache, Tag.Name tag, object parameters, Func<Task<T>> query, DistributedCacheEntryOptions options, CancellationToken token = default) where T : class
         {
             T result = await distributedCache.GetAsync<T>(tag, parameters, token);
             if (result == null)
             {
-                result = value.Invoke();
+                result = await query.Invoke();
                 await SetAsync<T>(distributedCache, tag, parameters, result, options, token);
             }
             return result;
         }
 
-        public async static Task SetAsync<T>(this IDistributedCache distributedCache, Cache.Tag.Name tag, object parameters, T value, DistributedCacheEntryOptions options, CancellationToken token = default)
+        public async static Task SetAsync<T>(this IDistributedCache distributedCache, Tag.Name tag, object parameters, T value, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
             string cacheKey = GetCacheKey(tag, parameters);
             await distributedCache.SetAsync(cacheKey, value.ToByteArray(), options, token);
             await InsertHashIntoTagMap(distributedCache, tag, cacheKey, token);
         }
 
-        public async static Task<T> GetAsync<T>(this IDistributedCache distributedCache, Cache.Tag.Name tag, object parameters, CancellationToken token = default) where T : class
+        public async static Task<T> GetAsync<T>(this IDistributedCache distributedCache, Tag.Name tag, object parameters, CancellationToken token = default) where T : class
         {
             string cacheKey = GetCacheKey(tag, parameters);
             var result = await distributedCache.GetAsync(cacheKey, token);
             return result.FromByteArray<T>();
         }
 
-        public async static Task RemoveAsync(this IDistributedCache distributedCache, Cache.Tag.Name tag, CancellationToken token = default)
+        public async static Task RemoveAsync(this IDistributedCache distributedCache, Tag.Name tag, CancellationToken token = default)
         {
             await RemoveHashesAndTagMap(distributedCache, tag, token);
         }
 
-        public async static Task RemoveAsync(this IDistributedCache distributedCache, params Cache.Tag.Name[] tags)
+        public async static Task RemoveAsync(this IDistributedCache distributedCache, params Tag.Name[] tags)
         {
             if(tags != null && tags.Any())
             {
@@ -54,7 +54,7 @@ namespace DistributedCacheDemo.Cache
             }            
         }
 
-        public async static Task RemoveAsync(this IDistributedCache distributedCache, Cache.Tag.Name tag, object parameters, CancellationToken token = default)
+        public async static Task RemoveAsync(this IDistributedCache distributedCache, Tag.Name tag, object parameters, CancellationToken token = default)
         {
             string cacheKey = GetCacheKey(tag, parameters);
             await distributedCache.RemoveAsync(cacheKey, token);
@@ -88,7 +88,7 @@ namespace DistributedCacheDemo.Cache
             }
         }
 
-        private static string GetCacheKey(Cache.Tag.Name tag, object parameters = null)
+        private static string GetCacheKey(Tag.Name tag, object parameters = null)
         {
             string _tag = tag.ToString();
             string _parameters = string.Empty;
@@ -111,7 +111,7 @@ namespace DistributedCacheDemo.Cache
             }
         }
 
-        public async static Task InsertHashIntoTagMap(IDistributedCache distributedCache, Cache.Tag.Name tag, string cacheKey, CancellationToken token = default)
+        public async static Task InsertHashIntoTagMap(IDistributedCache distributedCache, Tag.Name tag, string cacheKey, CancellationToken token = default)
         {
             string masterKey = string.Format("{0}{1}", "master", tag.ToString());
             var hashes = (await distributedCache.GetAsync(masterKey, token)).FromByteArray<List<string>>();
@@ -126,7 +126,7 @@ namespace DistributedCacheDemo.Cache
             }
         }
 
-        public async static Task RemoveHashFromTagMap(IDistributedCache distributedCache, Cache.Tag.Name tag, string cacheKey, CancellationToken token = default)
+        public async static Task RemoveHashFromTagMap(IDistributedCache distributedCache, Tag.Name tag, string cacheKey, CancellationToken token = default)
         {
             string masterKey = string.Format("{0}{1}", "master", tag.ToString());
             var hashes = (await distributedCache.GetAsync(masterKey, token)).FromByteArray<List<string>>();
@@ -141,7 +141,7 @@ namespace DistributedCacheDemo.Cache
             }
         }
 
-        public async static Task RemoveHashesAndTagMap(IDistributedCache distributedCache, Cache.Tag.Name tag, CancellationToken token = default)
+        public async static Task RemoveHashesAndTagMap(IDistributedCache distributedCache, Tag.Name tag, CancellationToken token = default)
         {
             string masterKey = string.Format("{0}{1}", "master", tag.ToString());
             var hashes = (await distributedCache.GetAsync(masterKey, token)).FromByteArray<List<string>>();

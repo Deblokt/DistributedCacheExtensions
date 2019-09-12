@@ -23,16 +23,16 @@ namespace DistributedCacheDemo.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<string>>> GetAsync()
         {
-            Func<IEnumerable<string>> values = () => new string[] { "value1", "value2" };
-            return Ok(await _cache.FromAsync(Cache.Tag.Name.Values, null, values, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) }));
+            Func<Task<IEnumerable<string>>> query = async () => new string[] { "value1", "value2" };
+            return Ok(await _cache.FromAsync(Cache.Tag.Name.Values, null, query, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) }));
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
         public async Task<ActionResult<string>> GetAsync(int id)
         {
-            Func<string> values = () => "value";
-            return Ok(await _cache.FromAsync(Cache.Tag.Name.Values, new { id }, values, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) }));
+            Func<Task<string>> query = async () => "value";
+            return Ok(await _cache.FromAsync(Cache.Tag.Name.Values, new { id }, query, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) }));
         }
 
         // POST api/values
